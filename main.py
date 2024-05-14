@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import uvicorn
 from fastapi import FastAPI, UploadFile, Request, APIRouter
+from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.params import File
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -74,6 +75,11 @@ async def create_upload_files(request: Request, image: UploadFile = File(...)):
             "is_show_result": True
         }
     )
+
+
+@app.get("/docs")
+def read_docs():
+    return get_swagger_ui_html(openapi_url="/openapi.json")
 
 
 app.include_router(router)
