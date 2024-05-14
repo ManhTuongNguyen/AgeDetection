@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="text-center">Nhận diện tuổi từ hình ảnh</h2>
+                </div>
+                <div class="card-body">
+                    <form action="/" enctype="multipart/form-data" method="post">
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Tải lên hình ảnh</label>
+                            <input class="form-control" type="file" id="image" name="image" multiple accept=".jpg, .png">
+                        </div>
+                        <div class="mb-3 text-center">
+                            <input type="submit" class="btn btn-primary btn-lg">
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                {% if not labels and is_show_result %}
+                    <div class="col-12">
+                        <h3 class="text-center text-danger">Không nhận diện được!</h3>
+                    </div>
+                {% endif %}
+                {% for label in labels %}
+                    <div class="col-12">
+                        <div class="alert alert-success" role="alert">
+                            <h3>{{ label }}</h3>
+                        </div>
+                    </div>
+                {% endfor %}
+                {% if image %}
+                    <div class="col-12">
+                        <div style="padding:20px;float:left;">
+                            <img width="500" src="{{ url_for('images', path=image) }}">  
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>    
+{% endblock content %}
