@@ -1,5 +1,5 @@
 ## Description
-
+This is a high-performance age detection system that utilizes the power of YOLOv8, a leading object detection model, to accurately determine the age of individuals in images. Whether you’re a developer looking to incorporate age detection in your application or a researcher in computer vision, this system provides a robust and efficient solution.
 
 ## Installation
 
@@ -22,3 +22,6 @@
     ```
     python main.py
     ```
+
+#### The trained model is available for download [at here](https://tuong01-my.sharepoint.com/:u:/g/personal/nguyenmanh_tuong01_onmicrosoft_com/EUEUwT3ON8JNsmZmnxk6AH4Bo-2OSgHvP7CGcmbt0IU5oA?e=k7TaDY).
+
