@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 import uvicorn
 from fastapi import FastAPI, UploadFile, Request, APIRouter
 from fastapi.openapi.docs import get_swagger_ui_html
@@ -8,8 +7,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from age_detection import detect_age, resize_image
+from age_detection import detect_age
 from config import BASE_URL, SERVER_HOST, SERVER_PORT
+from utils import handle_image_from_uploadfile
 
 app = FastAPI()
 router = APIRouter(prefix="/api")
@@ -17,29 +17,22 @@ router = APIRouter(prefix="/api")
 templates = Jinja2Templates(directory="templates")
 app.mount("/images", StaticFiles(directory="images"), name="images")
 
-IMAGEDIR = "images/"
+IMAGE_DIR = "images/"
 
 
 @router.post("/detect-age/")
 async def detect_age_api(image: UploadFile = File(...)):
-    """Detect age from uploaded image
-
-    Returns:
-        dict -- {"file": file_path, "labels": labels}
     """
-    byte_arr = await image.read()
-    np_arr = np.frombuffer(byte_arr, np.uint8)
-    # Decode the numpy array into an image
-    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-    img = resize_image(img)
-    assert img is not None, ValueError({"message": "Expected image"})
-    image_detected, labels = detect_age(img)
+    Detect age from uploaded image
+    """
+    handled_image = await handle_image_from_uploadfile(image)
+    image_detected, labels = detect_age(handled_image)
     if image_detected is not None:
-        cv2.imwrite(f"{IMAGEDIR}{image.filename}", image_detected)
+        cv2.imwrite(f"{IMAGE_DIR}{image.filename}", image_detected)
         return {
             "labels": labels,
             "code": "success",
-            "image": BASE_URL + f'{IMAGEDIR}{image.filename}',
+            "image": BASE_URL + f'{IMAGE_DIR}{image.filename}',
         }
     else:
         return {
@@ -55,17 +48,12 @@ def home(request: Request):
 
 @app.post("/")
 async def create_upload_files(request: Request, image: UploadFile = File(...)):
-    byte_arr = await image.read()
-    np_arr = np.frombuffer(byte_arr, np.uint8)
-    # Decode the numpy array into an image
-    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-    img = resize_image(img)
-    assert img is not None, ValueError({"message": "Expected image"})
-    image_detected, labels = detect_age(img)
+    handled_image = await handle_image_from_uploadfile(image)
+    image_detected, labels = detect_age(handled_image)
     if image_detected is not None:
-        cv2.imwrite(f"{IMAGEDIR}{image.filename}", image_detected)
+        cv2.imwrite(f"{IMAGE_DIR}{image.filename}", image_detected)
     else:
-        cv2.imwrite(f"{IMAGEDIR}{image.filename}", img)
+        cv2.imwrite(f"{IMAGE_DIR}{image.filename}", handled_image)
     return templates.TemplateResponse(
         "detect_age.html", 
         {
@@ -79,7 +67,7 @@ async def create_upload_files(request: Request, image: UploadFile = File(...)):
 
 @app.get("/docs")
 def read_docs():
-    return get_swagger_ui_html(openapi_url="/openapi.json")
+    return get_swagger_ui_html(openapi_url="/openapi.json", title="API doc")
 
 
 app.include_router(router)
