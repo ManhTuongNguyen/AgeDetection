@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 
 from age_detection import detect_age
 from config import BASE_URL, SERVER_HOST, SERVER_PORT
-from utils import handle_image_from_uploadfile
+from utils import handle_image_from_upload_file
 
 app = FastAPI()
 router = APIRouter(prefix="/api")
@@ -25,7 +25,7 @@ async def detect_age_api(image: UploadFile = File(...)):
     """
     Detect age from uploaded image
     """
-    handled_image = await handle_image_from_uploadfile(image)
+    handled_image = await handle_image_from_upload_file(image)
     image_detected, labels = detect_age(handled_image)
     if image_detected is not None:
         cv2.imwrite(f"{IMAGE_DIR}{image.filename}", image_detected)
@@ -48,7 +48,7 @@ def home(request: Request):
 
 @app.post("/")
 async def create_upload_files(request: Request, image: UploadFile = File(...)):
-    handled_image = await handle_image_from_uploadfile(image)
+    handled_image = await handle_image_from_upload_file(image)
     image_detected, labels = detect_age(handled_image)
     if image_detected is not None:
         cv2.imwrite(f"{IMAGE_DIR}{image.filename}", image_detected)

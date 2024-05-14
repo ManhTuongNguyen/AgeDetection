@@ -1,28 +1,8 @@
 from cv2.typing import MatLike
 from ultralytics import YOLO
 import supervision as sv
-import cv2
 
 model = YOLO(r'model_yolo/AgeDetection.pt')
-
-
-def resize_image(image: MatLike, _size=2000) -> MatLike:
-    h, w = image.shape[:2]
-    aspect_ratio = w/h
-
-    if h > _size or w > _size:
-        # If width is larger
-        if aspect_ratio > 1:
-            new_w = _size
-            new_h = int(new_w / aspect_ratio)
-        # If height is larger
-        else:
-            new_h = _size
-            new_w = int(new_h * aspect_ratio)
-
-        # Resize the image
-        image = cv2.resize(image, (new_w, new_h))
-    return image
 
 
 def detect_age(image: MatLike) -> tuple:
